@@ -62,8 +62,43 @@ public class MenuService {
      *  10. Convert the saved menu to a MenuResponse using the toMenuResponse() helper and return it.
      */
     public MenuResponse createMenu(MenuRequest request) {
+
+        if(request.getRestaurantId()==null){
+            throw new InvalidRequestException("Restaurant ID cannot be null");
+        }
+
+        if(request.getDate()==null){
+            throw new InvalidRequestException("Menu date cannot be null");
+        }
+
+        if(request.getMealType()==null){
+            throw new InvalidRequestException("Meal type cannot be null");
+        }
+
+        if(request.getMenuItemIds()==null || request.getMenuItemIds().isEmpty()){
+            throw new InvalidRequestException("Menu must contain at least one item");
+        }
+
+        if(restaurantService.getRestaurantById(request.getRestaurantId())==null){
+            throw new ResourceNotFoundException("Restaurant not found with id: " + request.getRestaurantId());
+        }
+
+
+
         // TODO: Implement this method
-        return null;
+        Menu menu = new Menu();
+        menu.setDate(request.getDate());
+        menu.setMenuItemIds(request.getMenuItemIds());
+        menu.setMealType(request.getMealType());
+        menu.setRestaurantId(request.getRestaurantId());
+
+        menuRepository.save(menu);
+
+
+
+
+
+        return ;
     }
 
     /**

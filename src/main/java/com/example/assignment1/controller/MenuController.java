@@ -8,6 +8,7 @@ package com.example.assignment1.controller;
 import com.example.assignment1.dto.MenuRequest;
 import com.example.assignment1.dto.MenuResponse;
 import com.example.assignment1.service.MenuService;
+import jakarta.servlet.ServletRequest;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,9 +34,9 @@ public class MenuController {
      * - Return HTTP 201 (Created) with the MenuResponse.
      */
     @PostMapping
-    public ResponseEntity<MenuResponse> createMenu(@RequestBody MenuRequest request) {
+    public ResponseEntity<MenuResponse> createMenu(@RequestBody MenuRequest request, ServletRequest servletRequest) {
         // TODO: Implement this method
-        return null;
+        return ResponseEntity.ok(menuService.createMenu(request));
     }
 
     /**
