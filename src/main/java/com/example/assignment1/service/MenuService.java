@@ -102,16 +102,7 @@ public class MenuService {
         m.setRestaurantId(request.getRestaurantId());
 
         menuRepository.save(m);
-
-
-        MenuResponse menuResponse = new MenuResponse();
-        menuResponse.setDate(m.getDate());
-        menuResponse.setMealType(m.getMealType());
-        menuResponse.setRestaurantLocation(restaurantService.getRestaurantById(m.getRestaurantId()).getLocation());
-        menuResponse.setRestaurantName(restaurantService.getRestaurantById(m.getRestaurantId()).getName());
-        menuResponse.setItems(m.getMenuItemIds().stream().map(menuItemService::getMenuItemById).toList());
-
-        return menuResponse;
+        return toMenuResponse(m);
     }
 
     /**
@@ -129,14 +120,7 @@ public class MenuService {
             throw new ResourceNotFoundException("Menu not found with id: " + id);
         }
 
-        MenuResponse menuResponse = new MenuResponse();
-        menuResponse.setDate(menu.get().getDate());
-        menuResponse.setMealType(menu.get().getMealType());
-        menuResponse.setRestaurantLocation(restaurantService.getRestaurantById(menu.get().getRestaurantId()).getLocation());
-        menuResponse.setRestaurantName(restaurantService.getRestaurantById(menu.get().getRestaurantId()).getName());
-        menuResponse.setItems(menu.get().getMenuItemIds().stream().map(menuItemService::getMenuItemById).toList());
-
-        return menuResponse;
+        return toMenuResponse(menu.get());
     }
 
     /**

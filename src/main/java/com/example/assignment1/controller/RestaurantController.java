@@ -37,7 +37,8 @@ public class RestaurantController {
     @PostMapping
     public ResponseEntity<Restaurant> createRestaurant(@RequestBody RestaurantRequest request) {
         // TODO: Implement this method
-        return ResponseEntity.ok(restaurantService.createRestaurant(request));
+        Restaurant response = restaurantService.createRestaurant(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     /**
@@ -98,6 +99,6 @@ public class RestaurantController {
     public ResponseEntity<Void> deleteRestaurant(@PathVariable Long id) {
         // TODO: Implement this method
         restaurantService.deleteRestaurant(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 }

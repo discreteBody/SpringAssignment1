@@ -36,7 +36,8 @@ public class MenuController {
     @PostMapping
     public ResponseEntity<MenuResponse> createMenu(@RequestBody MenuRequest request, ServletRequest servletRequest) {
         // TODO: Implement this method
-        return ResponseEntity.ok(menuService.createMenu(request));
+        MenuResponse menuResponse =  menuService.createMenu(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(menuResponse);
     }
 
     /**
@@ -129,6 +130,6 @@ public class MenuController {
     public ResponseEntity<Void> deleteMenu(@PathVariable Long id) {
         // TODO: Implement this method
         menuService.deleteMenu(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 }

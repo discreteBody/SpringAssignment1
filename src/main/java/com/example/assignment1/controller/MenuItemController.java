@@ -33,7 +33,8 @@ public class MenuItemController {
     @PostMapping
     public ResponseEntity<MenuItem> createMenuItem(@RequestBody MenuItemRequest request) {
         // TODO: Implement this method
-        return ResponseEntity.ok().body(menuItemService.createMenuItem(request));
+        MenuItem menuItem = menuItemService.createMenuItem(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(menuItem);
     }
 
     /**
@@ -83,6 +84,6 @@ public class MenuItemController {
     public ResponseEntity<Void> deleteMenuItem(@PathVariable Long id) {
         // TODO: Implement this method
         menuItemService.deleteMenuItem(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 }

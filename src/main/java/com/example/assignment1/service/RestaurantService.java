@@ -36,11 +36,11 @@ public class RestaurantService {
      */
     public Restaurant createRestaurant(RestaurantRequest request) {
         // TODO: Implement this method
-        if(request.getName() == null || request.getName().equals("")) {
+        if(request.getName() == null || request.getName().isEmpty() || request.getName().isBlank()) {
             throw new InvalidRequestException("Restaurant name cannot be empty");
         }
 
-        if(request.getLocation() == null || request.getLocation().equals("")) {
+        if(request.getLocation() == null || request.getLocation().isEmpty()) {
             throw new InvalidRequestException("Restaurant location cannot be empty");
         }
 
