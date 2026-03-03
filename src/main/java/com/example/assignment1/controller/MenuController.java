@@ -48,7 +48,7 @@ public class MenuController {
     @GetMapping
     public ResponseEntity<List<MenuResponse>> getAllMenus() {
         // TODO: Implement this method
-        return null;
+        return ResponseEntity.ok(menuService.getAllMenus());
     }
 
     /**
@@ -60,7 +60,7 @@ public class MenuController {
     @GetMapping("/{id}")
     public ResponseEntity<MenuResponse> getMenuById(@PathVariable Long id) {
         // TODO: Implement this method
-        return null;
+        return ResponseEntity.ok(menuService.getMenuById(id));
     }
 
     /**
@@ -72,7 +72,7 @@ public class MenuController {
     @GetMapping("/restaurant/{restaurantId}")
     public ResponseEntity<List<MenuResponse>> getMenusByRestaurant(@PathVariable Long restaurantId) {
         // TODO: Implement this method
-        return null;
+        return ResponseEntity.ok(menuService.getMenusByRestaurantId(restaurantId));
     }
 
     /**
@@ -88,7 +88,7 @@ public class MenuController {
     public ResponseEntity<List<MenuResponse>> getMenusByDate(
             @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         // TODO: Implement this method
-        return null;
+        return ResponseEntity.ok(menuService.getMenusByDate(date));
     }
 
     /**
@@ -103,7 +103,7 @@ public class MenuController {
             @PathVariable Long restaurantId,
             @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         // TODO: Implement this method
-        return null;
+        return ResponseEntity.ok(menuService.getMenusByRestaurantIdAndDate(restaurantId,date));
     }
 
     /**
@@ -116,7 +116,7 @@ public class MenuController {
     public ResponseEntity<MenuResponse> updateMenu(@PathVariable Long id,
                                                    @RequestBody MenuRequest request) {
         // TODO: Implement this method
-        return null;
+        return ResponseEntity.ok(menuService.updateMenu(id,request));
     }
 
     /**
@@ -128,6 +128,7 @@ public class MenuController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteMenu(@PathVariable Long id) {
         // TODO: Implement this method
-        return null;
+        menuService.deleteMenu(id);
+        return ResponseEntity.ok().build();
     }
 }

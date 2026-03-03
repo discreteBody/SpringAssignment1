@@ -83,22 +83,35 @@ public class MenuService {
             throw new ResourceNotFoundException("Restaurant not found with id: " + request.getRestaurantId());
         }
 
+        for(Long menuItemId : request.getMenuItemIds()){
+            if(menuItemService.getMenuItemById(menuItemId) == null){
+                throw new ResourceNotFoundException("Menu item not found with id: " + menuItemId);
+            }
+        }
+
+        Optional<Menu> menu = menuRepository.findByRestaurantIdAndDateAndMealType(request.getRestaurantId(), request.getDate(), request.getMealType());
+        if(menu.isPresent()){
+            throw new DuplicateResourceException("Menu already exists for restaurant " + request.getRestaurantId() + " on " + request.getDate() + " for " + request.getMealType());
+        }
 
 
-        // TODO: Implement this method
-        Menu menu = new Menu();
-        menu.setDate(request.getDate());
-        menu.setMenuItemIds(request.getMenuItemIds());
-        menu.setMealType(request.getMealType());
-        menu.setRestaurantId(request.getRestaurantId());
+        Menu m = new Menu();
+        m.setDate(request.getDate());
+        m.setMenuItemIds(request.getMenuItemIds());
+        m.setMealType(request.getMealType());
+        m.setRestaurantId(request.getRestaurantId());
 
-        menuRepository.save(menu);
-
+        menuRepository.save(m);
 
 
+        MenuResponse menuResponse = new MenuResponse();
+        menuResponse.setDate(m.getDate());
+        menuResponse.setMealType(m.getMealType());
+        menuResponse.setRestaurantLocation(restaurantService.getRestaurantById(m.getRestaurantId()).getLocation());
+        menuResponse.setRestaurantName(restaurantService.getRestaurantById(m.getRestaurantId()).getName());
+        menuResponse.setItems(m.getMenuItemIds().stream().map(menuItemService::getMenuItemById).toList());
 
-
-        return ;
+        return menuResponse;
     }
 
     /**
@@ -111,7 +124,19 @@ public class MenuService {
      */
     public MenuResponse getMenuById(Long id) {
         // TODO: Implement this method
-        return null;
+        Optional<Menu> menu = menuRepository.findById(id);
+        if(menu.isEmpty()){
+            throw new ResourceNotFoundException("Menu not found with id: " + id);
+        }
+
+        MenuResponse menuResponse = new MenuResponse();
+        menuResponse.setDate(menu.get().getDate());
+        menuResponse.setMealType(menu.get().getMealType());
+        menuResponse.setRestaurantLocation(restaurantService.getRestaurantById(menu.get().getRestaurantId()).getLocation());
+        menuResponse.setRestaurantName(restaurantService.getRestaurantById(menu.get().getRestaurantId()).getName());
+        menuResponse.setItems(menu.get().getMenuItemIds().stream().map(menuItemService::getMenuItemById).toList());
+
+        return menuResponse;
     }
 
     /**
@@ -126,7 +151,9 @@ public class MenuService {
      */
     public List<MenuResponse> getAllMenus() {
         // TODO: Implement this method
-        return null;
+        List<Menu> menus = menuRepository.findAll();
+        List<MenuResponse> menuResponses = menus.stream().map(this::toMenuResponse).toList();
+        return menuResponses;
     }
 
     /**
@@ -139,7 +166,13 @@ public class MenuService {
      */
     public List<MenuResponse> getMenusByRestaurantId(Long restaurantId) {
         // TODO: Implement this method
-        return null;
+        if(restaurantService.getRestaurantById(restaurantId) == null){
+            throw new ResourceNotFoundException("Restaurant not found with id: " + restaurantId);
+        }
+
+        List<Menu> menus = menuRepository.findByRestaurantId(restaurantId);
+        List<MenuResponse> menuResponses = menus.stream().map(this::toMenuResponse).toList();
+        return menuResponses;
     }
 
     /**
@@ -151,7 +184,9 @@ public class MenuService {
      */
     public List<MenuResponse> getMenusByDate(LocalDate date) {
         // TODO: Implement this method
-        return null;
+        List<Menu> menus = menuRepository.findByDate(date);
+        List<MenuResponse> menuResponses = menus.stream().map(this::toMenuResponse).toList();
+        return menuResponses;
     }
 
     /**
@@ -164,7 +199,12 @@ public class MenuService {
      */
     public List<MenuResponse> getMenusByRestaurantIdAndDate(Long restaurantId, LocalDate date) {
         // TODO: Implement this method
-        return null;
+        if(restaurantService.getRestaurantById(restaurantId) == null){
+            throw new ResourceNotFoundException("Restaurant not found with id: " + restaurantId);
+        }
+        List<Menu> menus = menuRepository.findByRestaurantIdAndDate(restaurantId,date);
+
+        return menus.stream().map(this::toMenuResponse).toList();
     }
 
     /**
@@ -184,7 +224,59 @@ public class MenuService {
      */
     public MenuResponse updateMenu(Long id, MenuRequest request) {
         // TODO: Implement this method
-        return null;
+
+            if(request.getRestaurantId()==null){
+                throw new InvalidRequestException("Restaurant ID cannot be null");
+            }
+
+            if(request.getDate()==null){
+                throw new InvalidRequestException("Menu date cannot be null");
+            }
+
+            if(request.getMealType()==null){
+                throw new InvalidRequestException("Meal type cannot be null");
+            }
+
+            if(request.getMenuItemIds()==null || request.getMenuItemIds().isEmpty()){
+                throw new InvalidRequestException("Menu must contain at least one item");
+            }
+
+            Menu existingMenu = menuRepository.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Menu not found with id: " + id));
+
+            if(restaurantService.getRestaurantById(request.getRestaurantId())==null){
+                throw new ResourceNotFoundException("Restaurant not found with id: " + request.getRestaurantId());
+            }
+
+            for(Long menuItemId : request.getMenuItemIds()){
+                if(menuItemService.getMenuItemById(menuItemId) == null){
+                    throw new ResourceNotFoundException("Menu item not found with id: " + menuItemId);
+                }
+            }
+
+            if(!existingMenu.getRestaurantId().equals(request.getRestaurantId())
+                    || !existingMenu.getDate().equals(request.getDate())
+                    || !existingMenu.getMealType().equals(request.getMealType())) {
+                Optional<Menu> duplicateMenu = menuRepository.findByRestaurantIdAndDateAndMealType(
+                        request.getRestaurantId(), request.getDate(), request.getMealType());
+                if (duplicateMenu.isPresent() && !duplicateMenu.get().getId().equals(id)) {
+                    throw new DuplicateResourceException("Menu already exists for restaurant " + request.getRestaurantId() + " on " + request.getDate() + " for " + request.getMealType());
+                }
+            }
+
+            existingMenu.setRestaurantId(request.getRestaurantId());
+            existingMenu.setDate(request.getDate());
+            existingMenu.setMealType(request.getMealType());
+            existingMenu.setMenuItemIds(request.getMenuItemIds());
+            menuRepository.save(existingMenu);
+
+            MenuResponse menuResponse = new MenuResponse();
+            menuResponse.setDate(existingMenu.getDate());
+            menuResponse.setMealType(existingMenu.getMealType());
+            menuResponse.setRestaurantLocation(restaurantService.getRestaurantById(existingMenu.getRestaurantId()).getLocation());
+            menuResponse.setRestaurantName(restaurantService.getRestaurantById(existingMenu.getRestaurantId()).getName());
+            menuResponse.setItems(existingMenu.getMenuItemIds().stream().map(menuItemService::getMenuItemById).toList());
+            return menuResponse;
     }
 
     /**
@@ -196,6 +288,9 @@ public class MenuService {
      */
     public void deleteMenu(Long id) {
         // TODO: Implement this method
+        Menu menu = menuRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Menu not found with id: " + id));
+        menuRepository.deleteById(id);
     }
 
     // ═══════════════════════════════════════════════════════════════

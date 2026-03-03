@@ -10,6 +10,7 @@ import com.example.assignment1.exception.InvalidRequestException;
 import com.example.assignment1.exception.ResourceNotFoundException;
 import com.example.assignment1.model.MenuItem;
 import com.example.assignment1.repository.MenuItemRepository;
+import com.example.assignment1.repository.MenuRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,9 +19,11 @@ import java.util.List;
 public class MenuItemService {
 
     private final MenuItemRepository menuItemRepository;
+    private final MenuRepository menuRepository;
 
-    public MenuItemService(MenuItemRepository menuItemRepository) {
+    public MenuItemService(MenuItemRepository menuItemRepository, MenuRepository menuRepository) {
         this.menuItemRepository = menuItemRepository;
+        this.menuRepository = menuRepository;
     }
 
     /**
@@ -38,7 +41,27 @@ public class MenuItemService {
      */
     public MenuItem createMenuItem(MenuItemRequest request) {
         // TODO: Implement this method
-        return null;
+        if(request.getName() == null || request.getName().equals("")) {
+            throw new InvalidRequestException("Menu item name cannot be empty");
+        }
+
+        if(request.getPrice() <= 0) {
+            throw new InvalidRequestException("Menu item price must be greater than 0");
+        }
+
+        if(request.getCategory() == null || request.getCategory().equals("")) {
+            throw new InvalidRequestException("Menu item Category cannot be empty");
+        }
+
+        MenuItem menuItem = new MenuItem();
+        menuItem.setName(request.getName());
+        menuItem.setDescription(request.getDescription());
+        menuItem.setPrice(request.getPrice());
+        menuItem.setVegetarian(request.isVegetarian());
+        menuItem.setCategory(request.getCategory());
+        menuItemRepository.save(menuItem);
+
+        return menuItem;
     }
 
     /**
@@ -51,7 +74,7 @@ public class MenuItemService {
      */
     public MenuItem getMenuItemById(Long id) {
         // TODO: Implement this method
-        return null;
+        return menuItemRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Menu item not found with id: " + id));
     }
 
     /**
@@ -61,7 +84,7 @@ public class MenuItemService {
      */
     public List<MenuItem> getAllMenuItems() {
         // TODO: Implement this method
-        return null;
+        return menuItemRepository.findAll();
     }
 
     /**
@@ -79,7 +102,28 @@ public class MenuItemService {
      */
     public MenuItem updateMenuItem(Long id, MenuItemRequest request) {
         // TODO: Implement this method
-        return null;
+        MenuItem menuItem = menuItemRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Menu item not found with id: " + id));
+        if(request.getName() == null || request.getName().equals("")) {
+            throw new InvalidRequestException("Menu item name cannot be empty");
+        }
+
+        if(request.getPrice() <= 0) {
+            throw new InvalidRequestException("Menu item price must be greater than 0");
+        }
+
+        if(request.getCategory() == null || request.getCategory().equals("")) {
+            throw new InvalidRequestException("Menu item Category cannot be empty");
+        }
+
+        menuItem.setName(request.getName());
+        menuItem.setDescription(request.getDescription());
+        menuItem.setPrice(request.getPrice());
+        menuItem.setVegetarian(request.isVegetarian());
+        menuItem.setCategory(request.getCategory());
+
+        menuItemRepository.save(menuItem);
+
+        return menuItem;
     }
 
     /**
@@ -91,5 +135,7 @@ public class MenuItemService {
      */
     public void deleteMenuItem(Long id) {
         // TODO: Implement this method
+        menuItemRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Menu item not found with id: " + id));
+        menuItemRepository.deleteById(id);
     }
 }

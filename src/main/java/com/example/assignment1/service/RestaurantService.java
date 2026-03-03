@@ -36,7 +36,19 @@ public class RestaurantService {
      */
     public Restaurant createRestaurant(RestaurantRequest request) {
         // TODO: Implement this method
-        return null;
+        if(request.getName() == null || request.getName().equals("")) {
+            throw new InvalidRequestException("Restaurant name cannot be empty");
+        }
+
+        if(request.getLocation() == null || request.getLocation().equals("")) {
+            throw new InvalidRequestException("Restaurant location cannot be empty");
+        }
+
+        Restaurant restaurant = new Restaurant();
+        restaurant.setName(request.getName());
+        restaurant.setLocation(request.getLocation());
+        restaurantRepository.save(restaurant);
+        return restaurant;
     }
 
     /**
@@ -51,7 +63,7 @@ public class RestaurantService {
      */
     public Restaurant getRestaurantById(Long id) {
         // TODO: Implement this method
-        return null;
+        return restaurantRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("Restaurant not found"));
     }
 
     /**
@@ -61,7 +73,7 @@ public class RestaurantService {
      */
     public List<Restaurant> getAllRestaurants() {
         // TODO: Implement this method
-        return null;
+        return restaurantRepository.findAll();
     }
 
     /**
@@ -78,7 +90,19 @@ public class RestaurantService {
      */
     public Restaurant updateRestaurant(Long id, RestaurantRequest request) {
         // TODO: Implement this method
-        return null;
+        Restaurant restaurant = restaurantRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Restaurant not found"));
+        if(request.getName() == null || request.getName().equals("")) {
+            throw new InvalidRequestException("Restaurant name cannot be empty");
+        }
+
+        if(request.getLocation()==null || request.getLocation().equals("")) {
+            throw new InvalidRequestException("Restaurant location cannot be empty");
+        }
+
+        restaurant.setName(request.getName());
+        restaurant.setLocation(request.getLocation());
+        restaurantRepository.save(restaurant);
+        return restaurant;
     }
 
     /**
@@ -90,5 +114,10 @@ public class RestaurantService {
      */
     public void deleteRestaurant(Long id) {
         // TODO: Implement this method
+        restaurantRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Restaurant not found with id: " + id));
+
+        restaurantRepository.deleteById(id);
+
     }
 }
